@@ -9,12 +9,12 @@ buildMap = function(p,pc=0.5,r=100,c=100){ 	# p - percent covered, pc = percent 
 	}
 	n 	= r * c * p
 	nred 	= n * pc
-	nblue 	= n * (1 - p)
+	nblue 	= n * (1 - pc)
 	dimcar 	= c(r,c,p,n,pc,nred,nblue)
 	nom=c("rows","column","pc_covered","n_cars","pc_red","n_red","n_blue")
 	names(dimcar) = nom	
-	pos 	= data.frame(col = sample(c("red","blue"),n,replace = TRUE),x = sample(1:c,n,replace = TRUE), y = sample(1:r,n, replace = TRUE))
-	cars = list("dim" = dimcar, "red" = posR, "blue" = posB)
+	pos 	= data.frame(col = rep(c("red","blue"),c(nred,nblue)),x = sample(1:c,n,replace = TRUE), y = sample(1:r,n, replace = TRUE))
+	cars = list("dim" = dimcar, "pos" = pos)
 	#	class(cars) = Bmap
 	return(cars)
 }	
