@@ -105,7 +105,7 @@ summary.bml = function(x){
 plot(m)
 
 move = function(x,t){
-	q = x		# make working copy
+	copy = x		# make working copy
 	u = x$pos	# throw away dims
 	new = u
 	if(t %% 2){	# odd, move blue up. move up then check for conflicts.
@@ -115,13 +115,15 @@ move = function(x,t){
 	}
 	# else move red right
 	if(!t %% 2){	# odd, move blue up. move up then check for conflicts.
-		newx = u[u$col==2,]["x"]+1
+		newx = u[u$col==1,]["x"]+1
 		newx[newx>x$dim["column"]]=1
-		new[new$col ==2,]["x"]=newx		# update pos?
+		new[new$col ==1,]["x"]=newx		# update pos?
 	}
 	# conflict not working.
-	conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[1:nrow(x$pos)]
-	q$pos[!conflict,1:2] = new[,1:2]
-	return(q)
+	conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[(1+nrow(new)):(2*nrow(new))]
+	copy$pos[!conflict,1:2] = new[!conflict,1:2]
+	return(copy)
 }
+
+mnew = move(m,1)
 
