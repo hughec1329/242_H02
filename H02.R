@@ -68,3 +68,14 @@ buildMap = function(p,pc=0.5,r=100,c=100){ 	# p - percent covered, pc = percent 
 	return(m)
 }
 	
+
+####### alt method to chose where cars go - cannot repeat same car.
+map = function(p,pc,r,c){
+	n = p * r * c
+	nred = n*pc
+	nblue = n*(1-pc)
+	all = data.frame(x=rep(1:r,each = c),y=1:c)
+	pos = all[sample(1:(r*c),n),]
+	pos$col = c(rep(1,nred),rep(2,nblue))
+	return(pos)
+}
