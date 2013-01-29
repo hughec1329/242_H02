@@ -73,9 +73,55 @@ buildMap = function(p,pc=0.5,r=100,c=100){ 	# p - percent covered, pc = percent 
 map = function(p,pc,r,c){
 	n = p * r * c
 	nred = n*pc
-	nblue = n*(1-pc)
+	nblue 	= n * (1 - pc)
+	dimcar 	= c(r,c,p,n,pc,nred,nblue)
+	nom=c("rows","column","pc_covered","n_cars","pc_red","n_red","n_blue")
+	names(dimcar) = nom	
 	all = data.frame(x=rep(1:r,each = c),y=1:c)
 	pos = all[sample(1:(r*c),n),]
 	pos$col = c(rep(1,nred),rep(2,nblue))
-	return(pos)
+	cars = list("dim" = dimcar, "pos" = pos)
+	class(cars) = "bml"
+	return(cars)
 }
+
+
+m = map(.2,.5,10,10)
+
+plot.bml = function(m){
+	grid = matrix(0,m$dim["rows"],m$dim["column"])
+	grid[ as.matrix(m$pos[m$pos["col"] == 1 ,c("x","y") ])] = 1
+	grid[ as.matrix(m$pos[m$pos["col"] == 2 ,c("x","y") ])] = 2
+	image(grid,col=c("white","red","blue"))
+}
+
+summary.bml = function(x){
+	dim = paste("dimensions:",x$dim["rows"],"rows X ",x$dim["column"]," columns")
+	n = paste("number of cars:", x$dim["n_cars"])
+	p = paste("p = ",x$dim["pc_covered"])
+	print(list(dim = dim,n = n,p = p))
+}
+
+plot(m)
+
+move = function(x,t){
+	q = x		# make working copy
+	u = x$pos	# throw away dims
+	new = u
+	if(t %% 2){	# odd, move blue up. move up then check for conflicts.
+		newy = u[u$col==2,]["y"]+1
+		newy[newy>x$dim["rows"]]=1
+		new[new$col ==2,]["y"]=newy		# update pos?
+	}
+	# else move red right
+	if(!t %% 2){	# odd, move blue up. move up then check for conflicts.
+		newx = u[u$col==2,]["x"]+1
+		newx[newx>x$dim["column"]]=1
+		new[new$col ==2,]["x"]=newx		# update pos?
+	}
+	# conflict not working.
+	conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[1:nrow(x$pos)]
+	q$pos[!conflict,1:2] = new[,1:2]
+	return(q)
+}
+
