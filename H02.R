@@ -38,7 +38,7 @@ move = function(x,t){
 	u = x$pos	# throw away dims
 	new = u
 	if(t %% 2){	# odd, move blue up. move up then check for conflicts.
-		nmov = nrow(u[u$col ==1,])
+		nmov = nrow(u[u$col ==1,])	# total number of cars that were supposed to move to work out velocity
 		newy = u[u$col==2,]["y"]+1
 		newy[newy>x$dim["rows"]]=1	# if fallen off edge, put at start
 		new[new$col ==2,]["y"]=newy		# update pos?
@@ -51,24 +51,15 @@ move = function(x,t){
 		new[new$col ==1,]["x"]=newx		# update pos?
 	}
 	# conflict working but not if same color next door.
-	# conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[(1+nrow(new)):(2*nrow(new))]
+	conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[(1+nrow(new)):(2*nrow(new))]
 	unewchar = paste(new$x,new$y,sep = "")
 	uchar = paste(u$x,u$y,sep = "")
-	conflict = unewchar %in% uchar		# and if not same color?
+	# conflict = unewchar %in% uchar	# cars getting stuck on edge ?
 	copy$pos[!conflict,1:2] = new[!conflict,1:2]
 	velocity = 1 - sum(copy$pos != new) / nmov	# depends which color moving, need to check while 
 	copy$dim[["velocity"]] = velocity
 	return(copy)
 }
-
-m = map(.2,.5,10,10)
-plot(m)
-
-mnew = move(m,1)
-plot(mnew)
-
-mnew = move(m,2)
-plot(mnew)
 
 play = function(m,t) {
 	vhs = array(0,dim = c(m$dim[["n_cars"]],3,t))
@@ -90,9 +81,13 @@ plot.vhs = function(m){
 		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 1 ,1:2,i ])] = 1
 		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 2 ,1:2,i ])] = 2
 		image(grid,col=c("white","red","blue"))
-		Sys.sleep(.2)
+		Sys.sleep(.02)
 	}
 }
 
-y = play(m,4)
+m = map(.2,.5,100,100)
+y = play(m,1000)
+plot(y)		# cars getting stuck on edge?
+plot(y$vel)
+
 
