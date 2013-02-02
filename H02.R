@@ -7,8 +7,8 @@ map = function(p,pc,r,c){
 	n = p * r * c
 	nred = n*pc
 	nblue 	= n * (1 - pc)
-	dimcar 	= c(r,c,p,n,pc,nred,nblue)
-	nom=c("rows","column","pc_covered","n_cars","pc_red","n_red","n_blue")
+	dimcar 	= c(r,c,p,n,pc,nred,nblue,0)
+	nom=c("rows","column","pc_covered","n_cars","pc_red","n_red","n_blue","velocity")
 	names(dimcar) = nom	
 	all = data.frame(x=rep(1:r,each = c),y=1:c)
 	pos = all[sample(1:(r*c),n),]
@@ -57,7 +57,7 @@ move = function(x,t){
 	conflict = unewchar %in% uchar		# and if not same color?
 	copy$pos[!conflict,1:2] = new[!conflict,1:2]
 	velocity = 1 - sum(copy$pos != new) / nmov	# depends which color moving, need to check while 
-	print(velocity)
+	copy$dim[["velocity"]] = velocity
 	return(copy)
 }
 
@@ -71,25 +71,28 @@ mnew = move(m,2)
 plot(mnew)
 
 play = function(m,t) {
-	vhs = array(0,dim = c(m$dim[["n_cars"]],3,6))plot(mnew)
-	for(i in 1:t)
-
-
-
-ah$x %in% as.numeric(rownames(table(ah$x)))[table(ah$x)>1] # which are in same column. need intersection & with row=row+1 
-ah$y %in% (ah$y+1)
-
-# try m$posx == mnew$posx
-
-# also try thorwing pos and col into character, then match mnew to m.
-
-# can mark trains after buildmap - only need to do it once.
-## for(i in xcars){
-	train == TRUE
-	while(train == TRUE)
-		if(car1 = car2)
-			col = redTrain
-		else
-			train == FALSE
+	vhs = array(0,dim = c(m$dim[["n_cars"]],3,t))
+	vel = numeric(t)
+	new = m
+	for(i in 1:t){
+		new = move(new,i)
+		vhs[,,i] = as.matrix(new$pos)
+		vel[i] = new$dim[["velocity"]]
+	}
+	betamax = list(dim = m$dim, vel = vel,vhs = vhs)
+	class(betamax) = "vhs"
+	return(betamax)
 }
- sapply(1:nrow(m$pos),function(i) paste(m$pos[i,0],sep = ","))
+
+plot.vhs = function(m){
+	for(i in 1:dim(m$vhs)[[3]]){		# number of time periods
+		grid = matrix(0,m$dim["rows"],m$dim["column"])
+		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 1 ,1:2,i ])] = 1
+		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 2 ,1:2,i ])] = 2
+		image(grid,col=c("white","red","blue"))
+		Sys.sleep(.2)
+	}
+}
+
+y = play(m,4)
+
