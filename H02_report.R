@@ -63,6 +63,7 @@ q = data.frame(1:t,o[2,])
 names(q) = c("time", p)
 m = melt(q , id.vars = "time")
 qplot(data = m , x=time,y=value,color = variable, geom = "smooth", main = "Effect of color mix on average velocity",ylab = "Velocity")
+ggsave("colorv.jpg")
 
 one = o[,1]
 class(one) = "vhs"
