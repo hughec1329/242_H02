@@ -80,7 +80,7 @@ plot.vhs = function(m){
 		grid = matrix(0,m$dim["rows"],m$dim["column"])
 		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 1 ,1:2,i ])] = 1
 		grid[ as.matrix(m$vhs[m$vhs[,3,i] == 2 ,1:2,i ])] = 2
-		image(grid,col=c("white","red","blue"))
+		image(grid,col=c("white","red","blue"),main = paste("time =",i))
 		Sys.sleep(.02)
 	}
 }
