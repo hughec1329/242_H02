@@ -20,6 +20,7 @@ q = data.frame(1:t,o[2,])
 names(q) = c("time", p)
 m = melt(q , id.vars = "time")
 qplot(data = m , x=time,y=value,color = variable, ylab = "velocity", main = "average velocity for different levels of p",geom = "smooth") 	# vel drops off at ~ p = 0.4
+ggsave("rhov.jpg")
 
 four = o[,4]
 class(four) = "vhs"
@@ -41,8 +42,18 @@ o = sapply(p,function(i) play(map(i,.5,100,100),t))
 q = data.frame(1:t,o[2,])
 names(q) = c("time", p)
 m = melt(q , id.vars = "time")
-qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
+qplot(data = m , x=time,y=value,color = variable, ylab = "velocity", main = "average velocity for different levels of p",geom = "smooth") 	# vel drops off at ~ p = 0.4
+ggsave("rhov22.jpg")
 
+# effeect of map size.
+t = 500
+mdim = c(10,50,100,250)
+o = sapply(mdim,function(i) play(map(0.3,.5,i,i),t))
+q = data.frame(1:t,o[2,])
+names(q) = c("time", mdim)
+m = melt(q , id.vars = "time")
+qplot(data = m , x=time,y=value,color = variable, geom = "smooth",main = "Effect of map size on average velocity ( rho =0.3)", ylab = "Velocity")
+ggsave("sizev.jpg")
 
 # velocities of different percent red/blue.
 t = 500
@@ -51,7 +62,7 @@ o = sapply(p,function(i) play(map(.3,i,100,100),t))
 q = data.frame(1:t,o[2,])
 names(q) = c("time", p)
 m = melt(q , id.vars = "time")
-qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
+qplot(data = m , x=time,y=value,color = variable, geom = "smooth", main = "Effect of color mix on average velocity",ylab = "Velocity")
 
 one = o[,1]
 class(one) = "vhs"
@@ -72,15 +83,16 @@ summaryRprof("testing2.out")
 summaryRprof("testing2.out")$by.self
 
 
-# is it size map or replications (t) that slow it up?
+# is it size map or replications (t) that slow it up? DO AFTER A REBOOT.
 
-mdim = c(10,50,100,500,1000)
-tim.size = sapply(mdim, function(i) system.time({t=play(map(0.3,.5,i,i),50)}))
+mdim = c(10,50,100,250)
+time.size = sapply(mdim, function(i) system.time({t=play(map(0.3,.5,i,i),50)}))
 times = seq(250,1000,250)
 time.time = sapply(times, function(i) System.time({t=play(map(0.3,.5,100,100),i)}))
 rho = seq(0.1,.9,.2)
 tim.rho = sapply(rho, function(i) System.time({t=play(map(i,.5,100,100),500)}))
 
+# do plots of size, times, rho vs time.
 
 library(profr)
 out = profr(t = play(map(0.3,.5,100,100),500))
