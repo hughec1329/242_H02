@@ -46,9 +46,41 @@ qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
 
 # velocities of different percent red/blue.
 t = 500
-p = seq(0.1,1,.1)
+p = seq(0.1,.9,.1)
 o = sapply(p,function(i) play(map(.3,i,100,100),t))
 q = data.frame(1:t,o[2,])
 names(q) = c("time", p)
 m = melt(q , id.vars = "time")
 qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
+
+one = o[,1]
+class(one) = "vhs"
+plot(one)
+
+
+# code testing 
+
+Rprof("testing.out")
+t = play(map(0.3,.5,100,100),500)
+Rprof(NULL)
+head(summaryRprof("testing.out")$by.self)
+
+Rprof("testing2.out")
+t = play(map(0.3,.5,100,100),500)
+Rprof(NULL)
+summaryRprof("testing2.out")
+summaryRprof("testing2.out")$by.self
+
+
+# is it size map or replications (t) that slow it up?
+
+mdim = c(10,50,100,500,1000)
+tim.size = sapply(mdim, function(i) system.time({t=play(map(0.3,.5,i,i),50)}))
+times = seq(250,1000,250)
+time.time = sapply(times, function(i) System.time({t=play(map(0.3,.5,100,100),i)}))
+rho = seq(0.1,.9,.2)
+tim.rho = sapply(rho, function(i) System.time({t=play(map(i,.5,100,100),500)}))
+
+
+library(profr)
+out = profr(t = play(map(0.3,.5,100,100),500))

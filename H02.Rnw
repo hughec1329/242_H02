@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\title{STA242 - HW02 - BML Traffic Model}
+\author{Hugh Crockford}
+\date{\today}
+\begin{document}
+	\section{Simulation}
+		The effect of various levels of rho, percent each car color, and size of map was investigated on the average velocity.
+		\subsection{Rho}
+			Below plot shows the effeect of rho (percent of available places covered by a car) on average velocity.\\
+			When the percent of map covered is low (between 0.1-0.3) the cars are fairly free to move and initial velocity is high. The Velocity increases fairly quickly to approach 1 as the cars form orderly diaganol patters, allowing each group (red and blue) to move in step.\\
+			When \rho is around 0.4, the velocity is fairly constant with jams developing and resolving at random areas on the grid area.
+			Higher levels of \rho quickly develop diaganal jams with layers of red and blue cars being unable to move.
+			\begin{figure}[h!]
+				\centering
+				\includegraphics[scale=0.5]{figure=rho.jpg}
+			\end{figure}<++>
+
+			\begin{figure}[h]
+				\centering
+				\includegraphics{figure=t500.jpg}
+				\caption{Typical jam pattern with high \rho }
+			\end{figure}<++>
+
+	\section{Methods}
+		Below is the output of plot and summary methods for my 'bml' class, as well as the dynamic plot.vhs that replays the simulation.
+		
+		
+		<<fig=TRUE,echo=TRUE>>=
+			m = map(0.3,.5,100,100)
+			summary(m)
+			plot(m)
+			simulation = play(m,100)
+			plot(simulation)
+		@
+
+
+	\section{Code Profiling}
+		\subsection{Speeding up Functions}
+		Investigating my functions with Rprof revealed much time spent in a call to paste in move function. This was leftover from another method of testing conflicts that I had tried out, but was not even used in the final version of move. Removing this call to paste signifigantly improved the speed of execution, however paste was still top of the by.self table, even though it did not occur in any of functions - perhaps it is being used internally by something?
+
+
+		<<>>=
+			head(summaryRprof('testing.out')$by.self)	# initial version
+			head(summaryRprof('testing.out')$by.self)	# after removing superflous paste
+		@
+
+		Considerable time was also spent in the call to make.unique, which I assume is part of 'duplicated', which I was using to test conflicts. I could not find another method of testing conflicts that did not use duplicated. ( I tried pasting charater strings and testing \%in\%, complicated logic statements, and table methods to test conflicts between new and old states.
+		\subsection{Effect of various paramaters on speed of execution}
+			
+			
+
+	\section{Investigating effect of \rho on Average Velocity.}
+	\section{Investigating effect of Different color mixes on Average Velocity}
+		<<fig=TRUE,echo=FALSE>>=
+
+			library(reshape2)
+			library(ggplot2)
+			source("BMLFn.R")
+
+			# velocities of different p
+			t = 500
+			p = seq(0.1,.8,.1)
+			o = sapply(p,function(i) play(map(i,.5,100,100),t))	# returns list of vhs w diff
+			q = data.frame(1:t,o[2,])
+			names(q) = c("time", p)
+			m = melt(q , id.vars = "time")
+			qplot(data = m , x=time,y=value,color = variable, ylab = "velocity", main = "average velocity for different levels of p",geom = "smooth") 	# vel drops off at ~ p = 0.4
+		@
+
+
+
+
+
+# investigate this more
+t = 500
+p = seq(0.3,.6,.05)
+o = sapply(p,function(i) play(map(i,.5,100,100),t))
+q = data.frame(1:t,o[2,])
+names(q) = c("time", p)
+m = melt(q , id.vars = "time")
+qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
+
+
+# velocities of different percent red/blue.
+t = 500
+p = seq(0.1,.9,.1)
+o = sapply(p,function(i) play(map(.3,i,100,100),t))
+q = data.frame(1:t,o[2,])
+names(q) = c("time", p)
+m = melt(q , id.vars = "time")
+qplot(data = m , x=time,y=value,color = variable, geom = "smooth")
+
+
+\end{document}

@@ -52,9 +52,6 @@ move = function(x,t){
 	}
 	# conflict working but not if same color next door.
 	conflict = duplicated(rbind(x$pos[,1:2],new[,1:2]))[(1+nrow(new)):(2*nrow(new))]
-	unewchar = paste(new$x,new$y,sep = "")
-	uchar = paste(u$x,u$y,sep = "")
-	# conflict = unewchar %in% uchar	# cars getting stuck on edge ?
 	copy$pos[!conflict,1:2] = new[!conflict,1:2]
 	velocity = 1 - sum(copy$pos != new) / nmov	# depends which color moving, need to check while 
 	copy$dim[["velocity"]] = velocity
