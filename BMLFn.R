@@ -5,8 +5,8 @@
 
 map = function(p,pc,r,c){
 	n = p * r * c
-	nred = n*pc
-	nblue 	= n * (1 - pc)
+	nred = round(n*pc)
+	nblue 	= round(n * (1 - pc))
 	dimcar 	= c(r,c,p,n,pc,nred,nblue,0)
 	nom=c("rows","column","pc_covered","n_cars","pc_red","n_red","n_blue","velocity")
 	names(dimcar) = nom	
