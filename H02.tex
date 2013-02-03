@@ -1,0 +1,118 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{listings}
+\title{STA242 - HW02 - BML Traffic Model}
+\author{Hugh Crockford}
+\date{\today}
+\usepackage{Sweave}
+\begin{document}
+	\section{Simulation}
+		The effect of various levels of \(\rho\), percent each car color, and size of map was investigated on the average velocity.
+		\subsection{Effect of \(\rho\) on Velocity.}
+			Below plot shows the effeect of rho (percent of available places covered by a car) on average velocity.\\
+			When the percent of map covered is low (between 0.1-0.3) the cars are fairly free to move and initial velocity is high. The Velocity increases fairly quickly to approach 1 as the cars form orderly diaganol patters, allowing each group (red and blue) to move in step.\\
+			When \(\rho\) is around 0.4, the velocity is fairly constant with jams developing and resolving at random areas on the grid area.
+			Higher levels of \(\rho\) quickly develop diaganal jams with layers of red and blue cars being unable to move.
+			\begin{figure}[h!b]
+				\centering
+				\includegraphics[scale=0.3]{rhov.jpg}
+				\caption{effect of \(\rho\) on average velocity}
+				\includegraphics[scale=0.3]{rhov22.jpg}
+				\caption{effect of \(\rho\) on average velocity, increased resolution at inversion.}
+			\end{figure}
+
+			\begin{figure}
+				\centering
+				\includegraphics[scale=0.5]{t500.jpg}	% need to convert this file from png to jpeg.
+				\caption{Typical jam pattern with high \(\rho\) }
+			\end{figure}
+		\subsection{Effect of map size on Velocity}
+			Map size also had an impact on average velocty (for a fixed \(\rho\), with smaller maps having lower average velocities due to conflicts odduring more often.
+
+			\begin{figure}[hb!]
+				\centering
+				\includegraphics[scale=0.5]{sizev.jpg}
+				\caption{Effect of map size on average velocity}
+				\includegraphics[scale=0.5]{colorv.jpg}
+				\caption{Effect of percent red cars on average velocity}
+			\end{figure}
+
+
+		\subsection{Effect of percent color mix on Velocity}
+			The color mix had a small effect on average velocity, mostly at the beginning of the simulation, before the cars developed their ordered diaganol positions. ( This graph is concerning as I would've thought 10 percent red sould be the same as 90 percent red. I've had a good look at my code and cannot find the error.)
+
+			It would be interesting to investigate the combined effect of these three variables and assess their covariances (? - e.g. what if map is small, high rho but few red cars?)
+			
+	\clearpage
+	\section{Methods}
+		Below is the output of plot and summary methods for my 'bml' class, as well as the dynamic plot.vhs that replays the simulation.
+\begin{Schunk}
+\begin{Sinput}
+> source('BMLFn.R')
+> m = map(0.3,.5,100,100)
+> summary(m)
+\end{Sinput}
+\begin{Soutput}
+$dim
+[1] "dimensions: 100 rows X  100  columns"
+
+$n
+[1] "number of cars: 3000"
+
+$p
+[1] "p =  0.3"
+\end{Soutput}
+\begin{Sinput}
+> plot(m)
+> simulation = play(m,100)
+> plot(simulation)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{H02-001}
+\clearpage
+
+	\section{Code Profiling}
+		\subsection{Speeding up Functions}
+		Investigating my functions with Rprof revealed much time spent in a call to paste in move function. This was leftover from another method of testing conflicts that I had tried out, but was not even used in the final version of move. Removing this call to paste signifigantly improved the speed of execution, however paste was still top of the by.self table, even though it did not occur in any of functions - perhaps it is being used internally by something?
+
+
+\begin{Schunk}
+\begin{Sinput}
+> head(summaryRprof('testing.out')$by.self)	# initial version
+\end{Sinput}
+\begin{Soutput}
+                       self.time self.pct total.time total.pct
+"paste"                    12.94    65.55      13.02     65.96
+"make.unique"               2.28    11.55       2.28     11.55
+"matrix"                    0.94     4.76       0.96      4.86
+"print.default"             0.62     3.14       0.62      3.14
+"[.data.frame"              0.48     2.43       0.96      4.86
+"row.names.data.frame"      0.36     1.82       0.36      1.82
+\end{Soutput}
+\begin{Sinput}
+> head(summaryRprof('testing2.out')$by.self)	# after removing superflous paste
+\end{Sinput}
+\begin{Soutput}
+                       self.time self.pct total.time total.pct
+"paste"                     6.80    54.23       6.82     54.39
+"make.unique"               1.98    15.79       1.98     15.79
+"matrix"                    0.88     7.02       0.88      7.02
+"row.names.data.frame"      0.50     3.99       0.50      3.99
+"[.data.frame"              0.42     3.35       0.88      7.02
+"rbind"                     0.28     2.23       2.48     19.78
+\end{Soutput}
+\end{Schunk}
+
+		Considerable time was also spent in the call to make.unique, which I assume is part of 'duplicated', which I was using to test conflicts. I could not find another method of testing conflicts that did not use duplicated. ( I tried pasting charater strings and testing \%in\%, complicated logic statements, and table methods to test conflicts between new and old states.
+
+	\clearpage
+		\subsection{Effect of various paramaters on speed of execution}
+			
+			
+
+	\section{CODE}
+		\lstinputlisting[breaklines=TRUE]{``H02\_report.R''}
+
+
+
+\end{document}
