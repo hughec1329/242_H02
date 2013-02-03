@@ -1,4 +1,4 @@
-# STA135 - HW02 - BML traffic model
+# STA242 - HW02 - BML traffic model
 # 20130125 - Hugh Crockford
 
 
@@ -86,12 +86,17 @@ summaryRprof("testing2.out")$by.self
 
 # is it size map or replications (t) that slow it up? DO AFTER A REBOOT.
 
-mdim = c(10,50,100,250)
+mdim = c(10,50,100,250,500,1000)
 time.size = sapply(mdim, function(i) system.time({t=play(map(0.3,.5,i,i),50)}))
-times = seq(250,1000,250)
-time.time = sapply(times, function(i) System.time({t=play(map(0.3,.5,100,100),i)}))
+times = c(10,50,100,seq(250,1000,250))
+time.time = sapply(times, function(i) system.time({t=play(map(0.3,.5,100,100),i)}))
 rho = seq(0.1,.9,.2)
-tim.rho = sapply(rho, function(i) System.time({t=play(map(i,.5,100,100),500)}))
+tim.rho = sapply(rho, function(i) system.time({t=play(map(i,.5,100,100),500)}))
+
+qplot(mdim,time.size[3,],geom="line")
+qplot(times,time.time[3,],geom="line")
+qplot(rho,tim.rho[3,],geom="line")
+
 
 # do plots of size, times, rho vs time.
 

@@ -1,0 +1,5 @@
+S3method(plot,bml)
+S3method(summary, bml)
+S3method(plot,vhs)
+export(map)
+export(play)

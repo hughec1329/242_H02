@@ -1,0 +1,8 @@
+Package: MyBML
+Version: 0.0-1
+Title: MyBML
+Description: Package to simulate Biham-Middleton-Levine Traffic model.
+Author: HEC
+Maintainer: HEC <hughcrockford@gmail.com>
+License: GPL-2
+Imports: stats,graphics
